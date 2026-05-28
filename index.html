@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeathRep</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e0f;
+    --surface: #161618;
+    --surface2: #1e1e21;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.15);
+    --red: #e63946;
+    --red-dim: rgba(230,57,70,0.12);
+    --red-border: rgba(230,57,70,0.35);
+    --green: #2ec27e;
+    --green-dim: rgba(46,194,126,0.1);
+    --green-border: rgba(46,194,126,0.3);
+    --accent: #ff6b35;
+    --accent-dim: rgba(255,107,53,0.1);
+    --accent-border: rgba(255,107,53,0.3);
+    --text: #f0ede8;
+    --muted: #6b6b74;
+    --muted2: #3a3a3f;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 2rem 1rem 4rem;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 460px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 2.5rem;
+  }
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    letter-spacing: 2px;
+    color: var(--text);
+    line-height: 1;
+  }
+  .logo span { color: var(--red); }
+  .tagline {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+    font-weight: 300;
+  }
+
+  /* Death counter */
+  .death-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .death-counter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 1.5rem;
+  }
+
+  .counter-btn {
+    width: 48px; height: 48px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 22px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .counter-btn:hover { background: var(--surface2); border-color: var(--border-hover); }
+  .counter-btn:active { transform: scale(0.93); }
+
+  .counter-value-wrap { text-align: center; }
+  #deaths-input {
+    width: 80px;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    color: var(--red);
+    text-align: center;
+    line-height: 1;
+    -moz-appearance: textfield;
+  }
+  #deaths-input::-webkit-outer-spin-button,
+  #deaths-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .counter-sub {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  /* Slider */
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .slider-label { font-size: 13px; color: var(--muted); white-space: nowrap; }
+  input[type="range"] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 3px;
+    background: var(--surface2);
+    border-radius: 3px;
+    outline: none;
+    border: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+  .slider-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent);
+    min-width: 28px;
+    text-align: right;
+  }
+
+  /* Exercises */
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+
+  .exo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .exo-tile {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 10px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    user-select: none;
+  }
+  .exo-tile:hover { border-color: var(--border-hover); }
+  .exo-tile.active {
+    background: var(--accent-dim);
+    border-color: var(--accent-border);
+  }
+  .exo-tile .exo-name { font-size: 12px; font-weight: 500; }
+  .exo-tile.active .exo-name { color: var(--accent); }
+  .exo-tile .exo-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  .db-badge {
+    display: inline-block;
+    font-size: 9px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 5px;
+    margin-bottom: 3px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* Result */
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    display: none;
+  }
+  .result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .result-title { font-size: 13px; font-weight: 500; }
+  .result-total {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .result-rows { display: flex; flex-direction: column; gap: 8px; }
+  .result-row {
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .result-row-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .result-row-name { font-size: 13px; font-weight: 500; }
+  .result-row-reps {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--accent);
+    letter-spacing: 1px;
+  }
+  .result-bar-track {
+    height: 3px;
+    background: var(--surface);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .result-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+
+  /* Buttons */
+  .btn-row { display: flex; gap: 8px; margin-bottom: 1rem; }
+
+  .btn {
+    flex: 1;
+    padding: 13px;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid;
+    transition: background 0.15s, transform 0.1s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .btn-done {
+    background: var(--green-dim);
+    border-color: var(--green-border);
+    color: var(--green);
+  }
+  .btn-done:hover:not(:disabled) { background: rgba(46,194,126,0.18); }
+
+  .btn-reset {
+    flex: 0;
+    padding: 13px 16px;
+    background: transparent;
+    border-color: var(--border);
+    color: var(--muted);
+  }
+  .btn-reset:hover { border-color: var(--border-hover); color: var(--text); }
+
+  /* History */
+  .history-wrap { max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+  .history-entry {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .history-entry .htime { color: var(--muted2); margin-right: 6px; }
+  .history-entry .hmsg { color: var(--muted); }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--muted2); border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="logo">Death<span>Rep</span></div>
+    <div class="tagline">every death costs</div>
+  </div>
+
+  <div class="death-card">
+    <div class="death-counter">
+      <button class="counter-btn" onclick="adj(-1)">−</button>
+      <div class="counter-value-wrap">
+        <input type="number" id="deaths-input" value="0" min="0" max="30" oninput="compute()">
+        <div class="counter-sub">morts</div>
+      </div>
+      <button class="counter-btn" onclick="adj(1)">+</button>
+    </div>
+    <div class="slider-row">
+      <span class="slider-label">Reps / mort</span>
+      <input type="range" min="3" max="20" value="5" step="1" id="reps-slider" oninput="updateReps(this.value)">
+      <span class="slider-val" id="reps-display">5</span>
+    </div>
+  </div>
+
+  <div class="death-card" style="margin-bottom:1rem;">
+    <div class="section-label">Exercices</div>
+    <div class="exo-grid" id="exo-grid"></div>
+  </div>
+
+  <div class="result-card" id="result-box">
+    <div class="result-header">
+      <div class="result-title" id="result-title"></div>
+      <div class="result-total" id="result-total"></div>
+    </div>
+    <div class="result-rows" id="result-rows"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-done" id="btn-done" onclick="markDone()" disabled>
+      ✓ C'est fait
+    </button>
+    <button class="btn btn-reset" onclick="resetAll()">↺</button>
+  </div>
+
+  <div class="history-wrap" id="history"></div>
+
+</div>
+
+<script>
+const EXERCISES = [
+  { name:'Pompes',        cat:'body', desc:'Sol',     unit:'reps' },
+  { name:'Squats',        cat:'body', desc:'Debout',  unit:'reps' },
+  { name:'Crunchs',       cat:'body', desc:'Abdos',   unit:'reps' },
+  { name:'Fentes',        cat:'body', desc:'Debout',  unit:'reps' },
+  { name:'Dips chaise',   cat:'body', desc:'Chaise',  unit:'reps' },
+  { name:'Mtn climbers',  cat:'body', desc:'Planche', unit:'reps' },
+  { name:'Gainage',       cat:'body', desc:'Planche', unit:'sec',  secPerDeath:20 },
+  { name:'Curl biceps',   cat:'db',   desc:'Haltères',unit:'reps' },
+  { name:'Curl marteau',  cat:'db',   desc:'Haltères',unit:'reps' },
+  { name:'Élév. lat.',    cat:'db',   desc:'Épaules', unit:'reps' },
+  { name:'Rowing 1 bras', cat:'db',   desc:'Dos',     unit:'reps' },
+  { name:'Press épaules', cat:'db',   desc:'Debout',  unit:'reps' },
+  { name:'Ext. triceps',  cat:'db',   desc:'Triceps', unit:'reps' },
+];
+
+let selected = new Set([0, 1, 2]);
+let repsPerDeath = 5;
+let gameCount = 0;
+
+function buildGrid() {
+  const grid = document.getElementById('exo-grid');
+  grid.innerHTML = '';
+  EXERCISES.forEach((ex, i) => {
+    const div = document.createElement('div');
+    div.className = 'exo-tile' + (selected.has(i) ? ' active' : '');
+    div.onclick = () => toggleExo(i);
+    const badge = ex.cat === 'db' ? '<div class="db-badge">haltère</div>' : ex.unit === 'sec' ? '<div class="db-badge" style="background:rgba(100,180,255,0.1);color:#64b4ff;">chrono</div>' : '';
+    div.innerHTML = `
+      ${badge}
+      <div class="exo-name">${ex.name}</div>
+      <div class="exo-sub">${ex.desc}</div>`;
+    grid.appendChild(div);
+  });
+}
+
+function toggleExo(i) {
+  if (selected.has(i)) { if (selected.size > 1) selected.delete(i); }
+  else selected.add(i);
+  buildGrid();
+  compute();
+}
+
+function adj(delta) {
+  const inp = document.getElementById('deaths-input');
+  inp.value = Math.max(0, Math.min(30, parseInt(inp.value || 0) + delta));
+  compute();
+}
+
+function updateReps(val) {
+  repsPerDeath = parseInt(val);
+  document.getElementById('reps-display').textContent = val;
+  compute();
+}
+
+function compute() {
+  const deaths = parseInt(document.getElementById('deaths-input').value || 0);
+  const box = document.getElementById('result-box');
+  if (deaths <= 0) { box.style.display = 'none'; document.getElementById('btn-done').disabled = true; return; }
+
+  const total = deaths * repsPerDeath;
+  const exList = [...selected].map(i => EXERCISES[i]);
+  const n = exList.length;
+  const base = Math.floor(total / n);
+  const remainder = total % n;
+
+  box.style.display = 'block';
+  document.getElementById('result-title').textContent = deaths + ' mort' + (deaths > 1 ? 's' : '') + ' · ' + n + ' exercice' + (n > 1 ? 's' : '');
+  document.getElementById('result-total').textContent = total + ' reps total';
+
+  const rows = document.getElementById('result-rows');
+  rows.innerHTML = '';
+  const pct = Math.round(100 / n);
+
+  exList.forEach((ex, idx) => {
+    const isSec = ex.unit === 'sec';
+    const val = isSec ? (ex.secPerDeath * deaths) : (base + (idx < remainder ? 1 : 0));
+    const label = isSec ? val + ' sec' : val + ' reps';
+    const row = document.createElement('div');
+    row.className = 'result-row';
+    row.innerHTML = `
+      <div class="result-row-top">
+        <span class="result-row-name">${ex.name}</span>
+        <span class="result-row-reps" style="${isSec ? 'color:#64b4ff;' : ''}">${label}</span>
+      </div>
+      <div class="result-bar-track">
+        <div class="result-bar-fill" style="width:${isSec ? 100 : pct}%;${isSec ? 'background:#64b4ff;' : ''}"></div>
+      </div>`;
+    rows.appendChild(row);
+  });
+
+  document.getElementById('btn-done').disabled = false;
+}
+
+function markDone() {
+  const deaths = parseInt(document.getElementById('deaths-input').value || 0);
+  if (deaths <= 0) return;
+  const total = deaths * repsPerDeath;
+  gameCount++;
+  const names = [...selected].map(i => EXERCISES[i].name).join(' · ');
+  addHistory(`Game #${gameCount}`, `${deaths} morts → ${total} reps (${names})`);
+  document.getElementById('deaths-input').value = 0;
+  document.getElementById('result-box').style.display = 'none';
+  document.getElementById('btn-done').disabled = true;
+}
+
+function resetAll() {
+  gameCount = 0;
+  document.getElementById('deaths-input').value = 0;
+  document.getElementById('result-box').style.display = 'none';
+  document.getElementById('btn-done').disabled = true;
+  document.getElementById('history').innerHTML = '';
+}
+
+function addHistory(tag, msg) {
+  const log = document.getElementById('history');
+  const now = new Date();
+  const time = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
+  const e = document.createElement('div');
+  e.className = 'history-entry';
+  e.innerHTML = `<span class="htime">${time}</span><span class="hmsg">${tag} — ${msg}</span>`;
+  log.prepend(e);
+}
+
+buildGrid();
+</script>
+</body>
+</html>
