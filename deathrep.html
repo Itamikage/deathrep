@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeathRep</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e0f;
+    --surface: #161618;
+    --surface2: #1e1e21;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.15);
+    --red: #e63946;
+    --red-dim: rgba(230,57,70,0.12);
+    --red-border: rgba(230,57,70,0.35);
+    --green: #2ec27e;
+    --green-dim: rgba(46,194,126,0.1);
+    --green-border: rgba(46,194,126,0.3);
+    --accent: #ff6b35;
+    --accent-dim: rgba(255,107,53,0.1);
+    --accent-border: rgba(255,107,53,0.3);
+    --blue: #64b4ff;
+    --blue-dim: rgba(100,180,255,0.1);
+    --text: #f0ede8;
+    --muted: #6b6b74;
+    --muted2: #3a3a3f;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 2rem 1rem 4rem;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 460px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 2.5rem;
+  }
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    letter-spacing: 2px;
+    color: var(--text);
+    line-height: 1;
+  }
+  .logo span { color: var(--red); }
+  .tagline {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+    font-weight: 300;
+  }
+
+  /* Death counter */
+  .death-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .death-counter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 1.5rem;
+  }
+
+  .counter-btn {
+    width: 48px; height: 48px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 22px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    font-family: 'DM Sans', sans-serif;
+    user-select: none;
+  }
+  .counter-btn:hover { background: var(--surface2); border-color: var(--border-hover); }
+  .counter-btn:active { transform: scale(0.93); }
+
+  .counter-value-wrap { text-align: center; }
+  #deaths-input {
+    width: 110px;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    color: var(--red);
+    text-align: center;
+    line-height: 1;
+    -moz-appearance: textfield;
+  }
+  #deaths-input::-webkit-outer-spin-button,
+  #deaths-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .counter-sub {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  /* Slider */
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .slider-label { font-size: 13px; color: var(--muted); white-space: nowrap; }
+  input[type="range"] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 3px;
+    background: var(--surface2);
+    border-radius: 3px;
+    outline: none;
+    border: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+  .slider-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent);
+    min-width: 28px;
+    text-align: right;
+  }
+
+  /* Exercises */
+  .section-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .section-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted2);
+  }
+
+  .exo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .exo-tile {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 10px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    user-select: none;
+    position: relative;
+  }
+  .exo-tile:hover { border-color: var(--border-hover); }
+  .exo-tile.active {
+    background: var(--accent-dim);
+    border-color: var(--accent-border);
+  }
+  .exo-tile .exo-name { font-size: 12px; font-weight: 500; }
+  .exo-tile.active .exo-name { color: var(--accent); }
+  .exo-tile .exo-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  .db-badge {
+    display: inline-block;
+    font-size: 9px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 5px;
+    margin-bottom: 3px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* Add-exercise tile */
+  .exo-tile.add-tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-style: dashed;
+    color: var(--muted);
+    font-size: 13px;
+    min-height: 48px;
+  }
+  .exo-tile.add-tile:hover { color: var(--accent); border-color: var(--accent-border); }
+
+  /* Delete cross on custom tiles */
+  .exo-del {
+    position: absolute;
+    top: 4px; right: 6px;
+    font-size: 13px;
+    color: var(--muted2);
+    line-height: 1;
+    cursor: pointer;
+  }
+  .exo-del:hover { color: var(--red); }
+
+  /* Add form */
+  .add-form {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .add-form.open { display: flex; }
+  .add-form input, .add-form select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 11px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    outline: none;
+  }
+  .add-form input:focus, .add-form select:focus { border-color: var(--border-hover); }
+  .add-form-btns { display: flex; gap: 8px; }
+  .btn-add-confirm {
+    background: var(--accent-dim);
+    border-color: var(--accent-border);
+    color: var(--accent);
+  }
+  .btn-add-confirm:hover { background: rgba(255,107,53,0.18); }
+  .btn-add-cancel {
+    background: transparent;
+    border-color: var(--border);
+    color: var(--muted);
+  }
+
+  /* Result */
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    display: none;
+  }
+  .result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .result-title { font-size: 13px; font-weight: 500; }
+  .result-total {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .result-rows { display: flex; flex-direction: column; gap: 8px; }
+  .result-row {
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .result-row-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .result-row-name { font-size: 13px; font-weight: 500; }
+  .result-row-reps {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--accent);
+    letter-spacing: 1px;
+  }
+  .reps-edit-wrap { display: flex; align-items: center; gap: 5px; }
+  .reps-edit {
+    width: 56px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 4px 6px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    color: var(--accent);
+    text-align: center;
+    outline: none;
+    -moz-appearance: textfield;
+  }
+  .reps-edit::-webkit-outer-spin-button,
+  .reps-edit::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .reps-edit:focus { border-color: var(--accent-border); }
+  .reps-edit.locked { border-color: var(--green-border); color: var(--green); }
+  .reps-unit { font-size: 11px; color: var(--muted); }
+  .reps-reset {
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+    margin-left: 2px;
+  }
+  .reps-reset:hover { color: var(--green); }
+  .result-bar-track {
+    height: 3px;
+    background: var(--surface);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .result-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+
+  /* Buttons */
+  .btn-row { display: flex; gap: 8px; margin-bottom: 1rem; }
+
+  .btn {
+    flex: 1;
+    padding: 13px;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid;
+    transition: background 0.15s, transform 0.1s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .btn-done {
+    background: var(--green-dim);
+    border-color: var(--green-border);
+    color: var(--green);
+  }
+  .btn-done:hover:not(:disabled) { background: rgba(46,194,126,0.18); }
+
+  .btn-reset {
+    flex: 0;
+    padding: 13px 16px;
+    background: transparent;
+    border-color: var(--border);
+    color: var(--muted);
+  }
+  .btn-reset:hover { border-color: var(--border-hover); color: var(--text); }
+
+  /* Stats */
+  .stats-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1rem;
+  }
+  .stat-box {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+  }
+  .stat-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--text);
+    line-height: 1;
+  }
+  .stat-val.red { color: var(--red); }
+  .stat-val.accent { color: var(--accent); }
+  .stat-lbl {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-top: 5px;
+  }
+
+  /* History */
+  .history-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .history-clear {
+    font-size: 11px;
+    color: var(--muted);
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .history-clear:hover { color: var(--red); }
+  .history-wrap { max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+  .history-entry {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .history-entry .htime { color: var(--muted2); margin-right: 6px; }
+  .history-entry .hmsg { color: var(--muted); }
+  .history-empty {
+    font-size: 12px;
+    color: var(--muted2);
+    text-align: center;
+    padding: 16px 0;
+  }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--muted2); border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="logo">Death<span>Rep</span></div>
+    <div class="tagline">every death costs</div>
+  </div>
+
+  <div class="death-card">
+    <div class="death-counter">
+      <button class="counter-btn" onclick="adj(-1)">−</button>
+      <div class="counter-value-wrap">
+        <input type="number" id="deaths-input" value="0" min="0" max="200" oninput="manualReps={};compute()">
+        <div class="counter-sub">morts</div>
+      </div>
+      <button class="counter-btn" onclick="adj(1)">+</button>
+    </div>
+    <div class="slider-row">
+      <span class="slider-label">Reps / mort</span>
+      <input type="range" min="3" max="30" value="5" step="1" id="reps-slider" oninput="updateReps(this.value)">
+      <span class="slider-val" id="reps-display">5</span>
+    </div>
+  </div>
+
+  <div class="death-card" style="margin-bottom:1rem;">
+    <div class="section-row">
+      <div class="section-label">Exercices</div>
+      <div class="section-count" id="exo-count"></div>
+    </div>
+    <div class="exo-grid" id="exo-grid"></div>
+
+    <div class="add-form" id="add-form">
+      <input type="text" id="add-name" placeholder="Nom (ex: Tractions)" maxlength="16">
+      <input type="text" id="add-desc" placeholder="Zone (ex: Dos)" maxlength="12">
+      <select id="add-unit">
+        <option value="reps">Répétitions</option>
+        <option value="sec">Chrono (sec/mort)</option>
+      </select>
+      <div class="add-form-btns">
+        <button class="btn btn-add-confirm" onclick="confirmAddExo()">Ajouter</button>
+        <button class="btn btn-add-cancel" onclick="toggleAddForm(false)">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="result-card" id="result-box">
+    <div class="result-header">
+      <div class="result-title" id="result-title"></div>
+      <div class="result-total" id="result-total"></div>
+    </div>
+    <div class="result-rows" id="result-rows"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-done" id="btn-done" onclick="markDone()" disabled>
+      ✓ C'est fait
+    </button>
+    <button class="btn btn-reset" onclick="resetDeaths()" title="Remettre le compteur à zéro">↺</button>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="stat-val accent" id="stat-games">0</div>
+      <div class="stat-lbl">Games</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val red" id="stat-deaths">0</div>
+      <div class="stat-lbl">Morts totales</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val" id="stat-reps">0</div>
+      <div class="stat-lbl">Reps totales</div>
+    </div>
+  </div>
+
+  <div class="history-head">
+    <div class="section-label">Historique</div>
+    <button class="history-clear" onclick="clearHistory()">Tout effacer</button>
+  </div>
+  <div class="history-wrap" id="history"></div>
+
+</div>
+
+<script>
+const EXERCISES = [
+  // Poids du corps
+  { name:'Pompes',        cat:'body', desc:'Sol',     unit:'reps' },
+  { name:'Squats',        cat:'body', desc:'Debout',  unit:'reps' },
+  { name:'Crunchs',       cat:'body', desc:'Abdos',   unit:'reps' },
+  { name:'Fentes',        cat:'body', desc:'Debout',  unit:'reps' },
+  { name:'Dips chaise',   cat:'body', desc:'Chaise',  unit:'reps' },
+  { name:'Mtn climbers',  cat:'body', desc:'Planche', unit:'reps' },
+  { name:'Burpees',       cat:'body', desc:'Cardio',  unit:'reps' },
+  { name:'Jumping jacks', cat:'body', desc:'Cardio',  unit:'reps' },
+  { name:'Pompes diam.',  cat:'body', desc:'Triceps', unit:'reps' },
+  { name:'Relevé jambes', cat:'body', desc:'Abdos',   unit:'reps' },
+  { name:'Superman',      cat:'body', desc:'Dos',     unit:'reps' },
+  { name:'Chaise mur',    cat:'body', desc:'Cuisses', unit:'sec', secPerDeath:15 },
+  { name:'Gainage',       cat:'body', desc:'Planche', unit:'sec',  secPerDeath:20 },
+  // Haltères
+  { name:'Curl biceps',   cat:'db',   desc:'Haltères',unit:'reps' },
+  { name:'Curl marteau',  cat:'db',   desc:'Haltères',unit:'reps' },
+  { name:'Élév. lat.',    cat:'db',   desc:'Épaules', unit:'reps' },
+  { name:'Rowing 1 bras', cat:'db',   desc:'Dos',     unit:'reps' },
+  { name:'Press épaules', cat:'db',   desc:'Debout',  unit:'reps' },
+  { name:'Ext. triceps',  cat:'db',   desc:'Triceps', unit:'reps' },
+  { name:'Goblet squat',  cat:'db',   desc:'Cuisses', unit:'reps' },
+  { name:'Soulevé terre', cat:'db',   desc:'Dos',     unit:'reps' },
+  { name:'Pull-over',     cat:'db',   desc:'Pecs',    unit:'reps' },
+  { name:'Shrugs',        cat:'db',   desc:'Trapèzes',unit:'reps' },
+];
+
+const STORE_KEY = 'deathrep-state-v1';
+
+let selected = new Set([0, 1, 2]);
+let repsPerDeath = 5;
+let state = { gameCount: 0, totalDeaths: 0, totalReps: 0, history: [], custom: [] };
+let manualReps = {}; // index combiné -> valeur fixée manuellement
+
+// Liste combinée : exercices de base + tes exercices perso
+function allEx() { return EXERCISES.concat(state.custom); }
+
+/* ---------- Persistence ---------- */
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) {
+      const s = JSON.parse(raw);
+      state = Object.assign(state, s);
+      if (!Array.isArray(state.custom)) state.custom = [];
+      if (Array.isArray(s.selected) && s.selected.length) selected = new Set(s.selected);
+      if (s.repsPerDeath) repsPerDeath = s.repsPerDeath;
+    }
+  } catch(e) { /* storage corrompu : on ignore */ }
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify({
+      gameCount: state.gameCount,
+      totalDeaths: state.totalDeaths,
+      totalReps: state.totalReps,
+      history: state.history,
+      custom: state.custom,
+      selected: [...selected],
+      repsPerDeath: repsPerDeath
+    }));
+  } catch(e) { /* stockage plein / bloqué */ }
+}
+
+/* ---------- Grid ---------- */
+function buildGrid() {
+  const grid = document.getElementById('exo-grid');
+  grid.innerHTML = '';
+  const list = allEx();
+  list.forEach((ex, i) => {
+    const isCustom = i >= EXERCISES.length;
+    const div = document.createElement('div');
+    div.className = 'exo-tile' + (selected.has(i) ? ' active' : '');
+    div.onclick = () => toggleExo(i);
+    let badge = '';
+    if (ex.unit === 'sec')      badge = '<div class="db-badge" style="background:rgba(100,180,255,0.1);color:#64b4ff;">chrono</div>';
+    else if (ex.cat === 'db')   badge = '<div class="db-badge">haltère</div>';
+    else if (isCustom)          badge = '<div class="db-badge" style="background:rgba(46,194,126,0.12);color:#2ec27e;">perso</div>';
+    const del = isCustom ? '<span class="exo-del" title="Supprimer" onclick="deleteExo(event,' + i + ')">×</span>' : '';
+    div.innerHTML = `
+      ${del}
+      ${badge}
+      <div class="exo-name">${ex.name}</div>
+      <div class="exo-sub">${ex.desc || ''}</div>`;
+    grid.appendChild(div);
+  });
+
+  // Tuile "+ Ajouter"
+  const add = document.createElement('div');
+  add.className = 'exo-tile add-tile';
+  add.innerHTML = '+ Ajouter';
+  add.onclick = () => toggleAddForm(true);
+  grid.appendChild(add);
+
+  document.getElementById('exo-count').textContent = selected.size + ' sélectionné' + (selected.size > 1 ? 's' : '');
+}
+
+function toggleExo(i) {
+  if (selected.has(i)) { if (selected.size > 1) selected.delete(i); }
+  else selected.add(i);
+  manualReps = {};
+  buildGrid();
+  compute();
+  saveState();
+}
+
+/* ---------- Exercices perso ---------- */
+function toggleAddForm(show) {
+  const f = document.getElementById('add-form');
+  f.classList.toggle('open', show);
+  if (show) document.getElementById('add-name').focus();
+}
+
+function confirmAddExo() {
+  const name = document.getElementById('add-name').value.trim();
+  const desc = document.getElementById('add-desc').value.trim();
+  const unit = document.getElementById('add-unit').value;
+  if (!name) { document.getElementById('add-name').focus(); return; }
+  const ex = { name, desc, cat: 'custom', unit };
+  if (unit === 'sec') ex.secPerDeath = 20;
+  state.custom.push(ex);
+  selected.add(allEx().length - 1); // sélectionne le nouvel exo
+  document.getElementById('add-name').value = '';
+  document.getElementById('add-desc').value = '';
+  document.getElementById('add-unit').value = 'reps';
+  toggleAddForm(false);
+  manualReps = {};
+  buildGrid();
+  compute();
+  saveState();
+}
+
+function deleteExo(event, i) {
+  event.stopPropagation();
+  const customIdx = i - EXERCISES.length;
+  if (customIdx < 0) return;
+  state.custom.splice(customIdx, 1);
+  // Reconstruit la sélection en décalant les indices au-dessus du supprimé
+  const next = new Set();
+  selected.forEach(idx => {
+    if (idx === i) return;
+    next.add(idx > i ? idx - 1 : idx);
+  });
+  if (next.size === 0) next.add(0);
+  selected = next;
+  manualReps = {};
+  buildGrid();
+  compute();
+  saveState();
+}
+
+/* ---------- Counter ---------- */
+function adj(delta) {
+  const inp = document.getElementById('deaths-input');
+  inp.value = Math.max(0, Math.min(200, parseInt(inp.value || 0) + delta));
+  manualReps = {};
+  compute();
+}
+
+function updateReps(val) {
+  repsPerDeath = parseInt(val);
+  document.getElementById('reps-display').textContent = val;
+  manualReps = {};
+  compute();
+  saveState();
+}
+
+/* ---------- Compute ---------- */
+function compute() {
+  let deaths = parseInt(document.getElementById('deaths-input').value || 0);
+  if (deaths > 200) { deaths = 200; document.getElementById('deaths-input').value = 200; }
+  const box = document.getElementById('result-box');
+  if (deaths <= 0) { box.style.display = 'none'; document.getElementById('btn-done').disabled = true; return; }
+
+  const list = allEx();
+  const total = deaths * repsPerDeath;
+
+  // Indices sélectionnés, séparés reps / chrono
+  const selIdx = [...selected].filter(i => list[i]);
+  const repIdx = selIdx.filter(i => list[i].unit !== 'sec');
+  const secIdx = selIdx.filter(i => list[i].unit === 'sec');
+
+  // Reps fixées manuellement (clamp pour ne pas dépasser le total)
+  let lockedSum = 0;
+  repIdx.forEach(i => {
+    if (manualReps[i] != null) {
+      manualReps[i] = Math.max(0, Math.min(total, manualReps[i]));
+      lockedSum += manualReps[i];
+    }
+  });
+  if (lockedSum > total) lockedSum = total;
+
+  // Le reste est réparti sur les exos NON fixés
+  const freeIdx = repIdx.filter(i => manualReps[i] == null);
+  let remaining = Math.max(0, total - lockedSum);
+  const base = freeIdx.length ? Math.floor(remaining / freeIdx.length) : 0;
+  let rem = freeIdx.length ? remaining % freeIdx.length : 0;
+
+  // Valeur finale par exercice
+  const valOf = {};
+  repIdx.forEach(i => {
+    if (manualReps[i] != null) valOf[i] = manualReps[i];
+  });
+  freeIdx.forEach((i, k) => { valOf[i] = base + (k < rem ? 1 : 0); });
+
+  box.style.display = 'block';
+  document.getElementById('result-title').textContent =
+    deaths + ' mort' + (deaths > 1 ? 's' : '') + ' · ' + selIdx.length + ' exercice' + (selIdx.length > 1 ? 's' : '');
+  const placed = repIdx.reduce((s, i) => s + (valOf[i] || 0), 0);
+  document.getElementById('result-total').textContent = placed + ' / ' + total + ' reps';
+
+  const rows = document.getElementById('result-rows');
+  rows.innerHTML = '';
+  const maxVal = Math.max(1, ...repIdx.map(i => valOf[i] || 0));
+
+  selIdx.forEach((i) => {
+    const ex = list[i];
+    const row = document.createElement('div');
+    row.className = 'result-row';
+    if (ex.unit === 'sec') {
+      const val = ex.secPerDeath * deaths;
+      row.innerHTML = `
+        <div class="result-row-top">
+          <span class="result-row-name">${ex.name}</span>
+          <span class="result-row-reps" style="color:#64b4ff;">${val} sec</span>
+        </div>
+        <div class="result-bar-track">
+          <div class="result-bar-fill" style="width:100%;background:#64b4ff;"></div>
+        </div>`;
+    } else {
+      const val = valOf[i] || 0;
+      const locked = manualReps[i] != null;
+      const width = Math.round((val / maxVal) * 100);
+      row.innerHTML = `
+        <div class="result-row-top">
+          <span class="result-row-name">${ex.name}</span>
+          <span class="reps-edit-wrap">
+            <input type="number" class="reps-edit${locked ? ' locked' : ''}" min="0" max="${total}"
+                   value="${val}" onchange="setManualReps(${i}, this.value)" onclick="this.select()">
+            <span class="reps-unit">reps</span>
+            ${locked ? '<span class="reps-reset" title="Auto" onclick="clearManualReps(' + i + ')">↺</span>' : ''}
+          </span>
+        </div>
+        <div class="result-bar-track">
+          <div class="result-bar-fill" style="width:${width}%;"></div>
+        </div>`;
+    }
+    rows.appendChild(row);
+  });
+
+  document.getElementById('btn-done').disabled = false;
+}
+
+function setManualReps(i, value) {
+  let v = parseInt(value);
+  if (isNaN(v) || v < 0) v = 0;
+  manualReps[i] = v;
+  compute();
+}
+
+function clearManualReps(i) {
+  delete manualReps[i];
+  compute();
+}
+
+/* ---------- Done / Stats ---------- */
+function markDone() {
+  const deaths = parseInt(document.getElementById('deaths-input').value || 0);
+  if (deaths <= 0) return;
+  const total = deaths * repsPerDeath;
+  state.gameCount++;
+  state.totalDeaths += deaths;
+  state.totalReps += total;
+
+  const list = allEx();
+  const names = [...selected].filter(i => list[i]).map(i => list[i].name).join(' · ');
+  addHistory(`Game #${state.gameCount}`, `${deaths} morts → ${total} reps (${names})`);
+
+  manualReps = {};
+  document.getElementById('deaths-input').value = 0;
+  document.getElementById('result-box').style.display = 'none';
+  document.getElementById('btn-done').disabled = true;
+  renderStats();
+  saveState();
+}
+
+function resetDeaths() {
+  manualReps = {};
+  document.getElementById('deaths-input').value = 0;
+  document.getElementById('result-box').style.display = 'none';
+  document.getElementById('btn-done').disabled = true;
+}
+
+function renderStats() {
+  document.getElementById('stat-games').textContent = state.gameCount;
+  document.getElementById('stat-deaths').textContent = state.totalDeaths;
+  document.getElementById('stat-reps').textContent = state.totalReps;
+}
+
+/* ---------- History ---------- */
+function addHistory(tag, msg) {
+  const now = new Date();
+  const time = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
+  state.history.unshift({ time, tag, msg });
+  if (state.history.length > 100) state.history.length = 100;
+  renderHistory();
+}
+
+function renderHistory() {
+  const log = document.getElementById('history');
+  log.innerHTML = '';
+  if (!state.history.length) {
+    log.innerHTML = '<div class="history-empty">Aucune game enregistrée</div>';
+    return;
+  }
+  state.history.forEach(h => {
+    const e = document.createElement('div');
+    e.className = 'history-entry';
+    e.innerHTML = `<span class="htime">${h.time}</span><span class="hmsg">${h.tag} → ${h.msg}</span>`;
+    log.appendChild(e);
+  });
+}
+
+function clearHistory() {
+  state.gameCount = 0;
+  state.totalDeaths = 0;
+  state.totalReps = 0;
+  state.history = [];
+  renderStats();
+  renderHistory();
+  saveState();
+}
+
+/* ---------- Init ---------- */
+loadState();
+document.getElementById('reps-slider').value = repsPerDeath;
+document.getElementById('reps-display').textContent = repsPerDeath;
+buildGrid();
+renderStats();
+renderHistory();
+</script>
+</body>
+</html>
